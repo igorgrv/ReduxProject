@@ -4,6 +4,7 @@
 yarn add react-redux @reduxjs/toolkit
 ```
 
+![](./README.images/reduxgif.gif)
 <img src="./README.images/reduxgif.gif" style="zoom: 33%;" />
 
 * **`Action`** -> é um objeto, que **obrigatoriamente** contém um `type` com o nome da action e opcionalmente um `payload`;
