@@ -290,9 +290,13 @@ const itemSlice = createSlice({
         return item;
       });
     },
+    addItem(state, { payload }) {
+      console.log(payload);
+      state.push({ ...payload, id: uuid() });
+    },
   },
 });
 
-export const { changeFavorite } = itemSlice.actions;
+export const { changeFavorite, addItem } = itemSlice.actions;
 
 export default itemSlice.reducer;

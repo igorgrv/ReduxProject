@@ -1,15 +1,19 @@
+import Button from "components/Button";
 import Header from "components/Header";
 import Item from "components/Item";
+import { useDispatch, useSelector } from "react-redux";
+import { resetCart } from "store/reducers/cart";
 import styles from "./Cart.module.scss";
-import { useSelector } from "react-redux";
 
 export default function Cart() {
+  const dispatch = useDispatch();
+
   // [{item + qntity do carrinho}]
   const { cartItems, total } = useSelector((state) => {
     // state = store inteiro
 
     const search = state.search;
-    const searchReg = new RegExp(search, 'i')
+    const searchReg = new RegExp(search, "i");
 
     let total = 0;
     // state.cart = {id, qnty}
@@ -17,7 +21,7 @@ export default function Cart() {
       // item = {title, description, id}
       const item = state.items.find((item) => item.id === actualCart.id);
       total += item.price * actualCart.quantity;
-      
+
       // finalCart = [{item + qntyt(state.cart)}]
       if (item.title.match(searchReg)) {
         finalCart.push({
@@ -46,7 +50,7 @@ export default function Cart() {
             Subtotal: <strong> R$ {total.toFixed(2)} </strong>
           </span>
         </div>
-        <button className={styles.submit}>Submit</button>
+        <Button onClick={() => dispatch(resetCart())}>Submit</Button>
       </div>
     </div>
   );
