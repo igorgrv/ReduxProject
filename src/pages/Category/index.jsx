@@ -1,18 +1,22 @@
+import Button from "components/Button";
 import Header from "components/Header";
-import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import styles from "./Category.module.scss";
 import Item from "components/Item";
+import { useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import styles from "./Category.module.scss";
 
 export default function Category() {
+  const navigate = useNavigate();
   const { categoryName } = useParams("categoryName");
   const { category, items } = useSelector((state) => {
-    const search = new RegExp(state.search, 'i')
+    const search = new RegExp(state.search, "i");
     return {
       category: state.categories.find(
         (category) => category.id === categoryName
       ),
-      items: state.items.filter((item) => item.category === categoryName && item.title.match(search)),
+      items: state.items.filter(
+        (item) => item.category === categoryName && item.title.match(search)
+      ),
     };
   });
   return (
@@ -21,10 +25,14 @@ export default function Category() {
         title={category.title}
         description={category.description}
         image={category.header}
-      />
+      >
+        <Button onClick={() => navigate(`/advertise/${categoryName}`)}>
+          Add your products
+        </Button>
+      </Header>
       <div className={styles.items}>
         {items?.map((item) => (
-          <Item key={item.id} {...item}/>
+          <Item key={item.id} {...item} />
         ))}
       </div>
     </div>

@@ -283,16 +283,28 @@ const itemSlice = createSlice({
   name: "itemsSlicer",
   initialState,
   reducers: {
-    changeFavorite(state, { payload }) {
+    changeFavorite: (state, { payload }) => {
       // is not the state of the store
       state.map((item) => {
         if (item.id === payload) item.favorite = !item.favorite;
         return item;
       });
     },
+    addItem: (state, { payload }) => {
+      state.push({ ...payload, id: uuid() });
+    },
+    changeTitle: (state, { payload }) => {
+      const index = state.findIndex((item) => item.id === payload.id);
+      Object.assign(state[index], { ...payload });
+    },
+    deleteItem: (state, { payload }) => {
+      const index = state.findIndex((item) => item.id === payload);
+      state.splice(index, 1);
+    },
   },
 });
 
-export const { changeFavorite } = itemSlice.actions;
+export const { changeFavorite, addItem, changeTitle, deleteItem } =
+  itemSlice.actions;
 
 export default itemSlice.reducer;

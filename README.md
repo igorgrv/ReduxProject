@@ -4,7 +4,6 @@
 yarn add react-redux @reduxjs/toolkit
 ```
 
-![](https://github.com/igorgrv/ReduxProject/blob/part1-redux-dummy-data/README.images/reduxGif.gif)
 <img src="./README.images/reduxgif.gif" style="zoom: 33%;" />
 
 * **`Action`** -> é um objeto, que **obrigatoriamente** contém um `type` com o nome da action e opcionalmente um `payload`;
@@ -298,7 +297,7 @@ export default function ItemComponent(props) {
 
 
 
-#### Push/Filter/Delete state
+#### Push/Filter state
 
 ```bash
 [Immer] An immer producer returned a new value *and* modified its draft. Either return a new value *or* modify the draft.
@@ -364,7 +363,83 @@ const seuSlice = createSlice({
 
 
 
-# Tópicos Adicionais <a href="adicionais"/>
+### CRUD (actions)
+
+Dado o `initialState` abaixo:
+
+```javascript
+const initialState = [
+  {
+    {
+    title: "XBOX",
+    description: 'Description',
+    id: uuid(),
+  },
+  {
+    {
+    title: "Playstation",
+    description: 'Description 2',
+    id: uuid(),
+  }
+]
+```
+
+
+
+* **Add**
+
+```react
+const mySlicer = createSlice({
+  name: 'mySlice',
+  reducers: {
+    // adicionamos ao state atual um objeto novo
+    addAction: (state, { payload }) => {
+      state.push( {...payload, id: uuid() })
+    }
+  }
+})
+```
+
+* **Update**
+
+```react
+const mySlicer = createSlice({
+  name: 'mySlice',
+  reducers: {
+    
+    // payload = { id: 123, title: 'newTitle', description: 'newDesc' }
+    updateAction: (state, { payload }) => {
+      // Encontramos o index do objeto a ser atualizado
+			const index = state.findIndex(item => item.id === payload.id)
+      
+      // Com o uso do Object.assign, atualizamos o valor desejado
+      Object.assign(state[index], {...payload} )
+    }
+  }
+})
+```
+
+* **Delete**
+
+```react
+const mySlicer = createSlice({
+  name: 'mySlice',
+  reducers: {
+    
+    // payload = "123"
+    updateAction: (state, { payload }) => {
+			const index = state.findIndex(item => item.id === payload)
+      
+      // Com o uso do Splice, iremos remover o elemento do array
+			state.splice(index, 1);
+    }
+  }
+})
+```
+
+
+
+# Tópicos Adicionais <a href="adicionais"/> :book:
 
 ## Classnames
 
@@ -410,6 +485,20 @@ return
     Página Inicial
   </a>
 ```
+
+
+
+PS: Se a classe tiver `-` , é necessário por entre `[]`:
+
+* Exemplo, para class `input-error`:
+
+```react
+className={classNames({
+    [styles["input-error"]]: errors.description,
+})}
+```
+
+
 
 
 
@@ -521,7 +610,7 @@ yarn add react-router-dom
         )
       }
       ```
-  
+
   * **`useParam`** -> hook para pegar os parâmetros da URL - `/categoria/:nomeCategoria`;
 
     * ```react
@@ -536,9 +625,9 @@ yarn add react-router-dom
       export default function Category() {
         const { nomeCategoria } = useParams("nomeCategoria");
       ```
-  
+
   * **`useNavigate`** -> hook para navegar em **routes**;
-  
+
     * ```react
       const navigate = useNavigate();
       
@@ -553,21 +642,21 @@ yarn add react-router-dom
   ### Config Base de Route
 
   ```react
-  import { BrowserRouter, Route, Routes } from "react-router-dom";
-  import LandingPage from 'components/LandingPage'
-  
-  export default function Router() {
-    return (
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />}>
-            <Route index element={<div>home</div>} />
-            <Route path="/categoria/:nomeCategoria" element={<div>home</div>} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    );
-  }
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import LandingPage from 'components/LandingPage'
+
+export default function Router() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />}>
+          <Route index element={<div>home</div>} />
+          <Route path="/categoria/:nomeCategoria" element={<div>home</div>} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
   ```
 
 * No `index.js` importe este arquivo
@@ -645,5 +734,177 @@ console.log(reduce)
   },
 ]
 */
+```
+
+
+
+## React Hook Form
+
+```shell
+yarn add react-hook-form
+```
+
+O React Hook Form nos ajuda **com formulários,** onde não **precisamos** **declarar um state** para cada **input!**
+
+Como usar:
+
+* `useForm` -> é o hook que irá retornar as funções necessárias como:
+  * `register` -> que armazena o state
+  * `handleSubmit` -> que recebe os valores de `register`
+
+
+
+* **Sem** react-hook-form:
+
+```react
+export function default MyForm() {
+  const [name, setName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phoneNumber, setphoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  
+  function handleSubmit() {
+    console.log('Do something with all the forms')
+  }
+  
+  return (
+  	<form onSubmit={handleSubmit}>
+      <input type="text" placeholder="name" />
+      <input type="text" placeholder="lastName" />
+      <input type="text" placeholder="phoneNumber" />
+      <input type="email" placeholder="email" />
+    </form>
+  )
+}
+```
+
+* **Com** react-hook-form:
+
+```react
+import { useForm } from 'react-hook-form';
+
+export function default MyForm() {
+  
+  const { register, handleSubmit } = useForm();
+  
+  function cadastrar(params) {
+    console.log('states', params) // {name, lastName ...}
+  }
+  
+  return (
+  	<form onSubmit={handleSubmit(cadastrar)}>
+      <input {...register('name')} type="text" placeholder="name" />
+      <input {...register('lastName')} type="text" placeholder="lastName" />
+      <input {...register('phoneNumber')} type="text" placeholder="phoneNumber" />
+      <input {...register('email	')} type="email" placeholder="email" />
+    </form>
+  )
+}
+```
+
+### Validando campos
+
+O `react-hook-form` também nos permite marcar o campo com required, ou até mesmo por outras validações!
+
+* Dentro do `register`, coloque `,` e adicione as validações necessárias:
+
+```react
+<form onSubmit={handleSubmit(cadastrar)}>
+  <input {...register('name', { required: true })} type="text" placeholder="name" />
+  <input {...register('lastName', { required: true })} type="text" placeholder="lastName" />
+  <input {...register('phone', { required: true })} type="text" placeholder="phone" />
+  <input {...register('email	', { required: true })} type="email" placeholder="email" />
+</form>
+```
+
+* Existem diversas outra validações, com `maxLength`, `minLength` e etc;
+* O `required` **automaticamente da onBlur** no elemento faltante!
+
+
+
+### Default values
+
+Caso queira que um valor seja pré-selecionado:
+
+* dentro do `useForm`, crie um objeto do tipo `defaultValues` e passe o nome que colocamos no `register`
+
+```react
+import { useForm } from 'react-hook-form';
+
+export function default MyForm() {
+  
+  // defaultValues
+  const { register, handleSubmit } = useForm({
+    defaultValues: {
+      name: 'Igor'
+    }
+  });
+  
+  return (
+  	<form onSubmit={handleSubmit(cadastrar)}>
+      <input {...register('name')} type="text" placeholder="name" />
+      <input {...register('lastName')} type="text" placeholder="lastName" />
+      <input {...register('phoneNumber')} type="text" placeholder="phoneNumber" />
+      <input {...register('email	')} type="email" placeholder="email" />
+    </form>
+  )
+}
+```
+
+
+
+### Capturando errors
+
+O `react-hook-form` também pode capturar os errors do formulário!
+
+* `formState` -> capture do `useForm`
+* Extrai para uma constante `errors` o valor retornado de `formState`
+* Com o `classNames` faça a validação para exibir outro css caso tenha erro
+
+```react
+const { register, handleSubmit, formState } = useForm({
+    defaultValues: {
+      category: "",
+    },
+  });
+
+const { errors } = formState;
+
+return (
+  	<form onSubmit={handleSubmit(cadastrar)}>
+      <input 
+         className={classNames({
+            [styles["input-error"]]: errors.name,
+          })}
+        {...register('name')} type="text" placeholder="name" />
+    </form>
+)
+```
+
+
+
+## Component genéricos & forwardRef
+
+Quando temos um **componente genérico do HTML** precisamos utilizar o **`forwardRef`**!
+
+```react
+import { forwardRef } from 'react';
+import styles from './Input.module.scss';
+
+// Aqui passamos a ref como props
+function Input({ value, onChange, ...outrosProps }, ref) {
+  return (
+    <input
+      ref={ref}
+      value={value}
+      onChange={onChange}
+      {...outrosProps}
+      className={styles.input}
+    />
+  )
+}
+
+// Exportamos o componente
+export default forwardRef(Input);
 ```
 

@@ -3,10 +3,11 @@ import styles from "./Home.module.scss";
 import watch from "assets/inicial.png";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import Button from "components/Button";
 
 export default function Home() {
   const navigate = useNavigate();
-  const categories = useSelector(state => state.categories)
+  const categories = useSelector((state) => state.categories);
   return (
     <div>
       <Header
@@ -14,7 +15,11 @@ export default function Home() {
         description="Buy different types of products on the best site in Brazil!"
         image={watch}
         className={styles.header}
-      />
+      >
+        <Button onClick={() => navigate("/advertise")}>
+          Add your products
+        </Button>
+      </Header>
       <div className={styles.categories}>
         <div className={styles["categories-title"]}>
           <h1>Categories</h1>
