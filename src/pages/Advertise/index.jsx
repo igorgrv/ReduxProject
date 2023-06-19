@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import Button from "components/Button";
 import Header from "components/Header";
+import Input from "components/Input";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -33,7 +34,7 @@ export default function Advertise() {
         descricao="Anuncie seu produto no melhor site do Brasil!"
       />
       <form className={styles.form} onSubmit={handleSubmit(addProduct)}>
-        <input
+        <Input
           className={classNames({
             [styles["input-error"]]: errors.title,
           })}
@@ -41,7 +42,7 @@ export default function Advertise() {
           placeholder="Product Name"
           alt="Product Name"
         />
-        <input
+        <Input
           className={classNames({
             [styles["input-error"]]: errors.description,
           })}
@@ -49,7 +50,7 @@ export default function Advertise() {
           placeholder="Product description"
           alt="Product description"
         />
-        <input
+        <Input
           className={classNames({
             [styles["input-error"]]: errors.picture,
           })}
@@ -71,7 +72,7 @@ export default function Advertise() {
             </option>
           ))}
         </select>
-        <input
+        <Input
           className={classNames({
             [styles["input-error"]]: errors.price,
           })}
