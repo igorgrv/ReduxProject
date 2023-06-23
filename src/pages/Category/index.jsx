@@ -8,6 +8,7 @@ import styles from "./Category.module.scss";
 export default function Category() {
   const navigate = useNavigate();
   const { categoryName } = useParams("categoryName");
+
   const { category, items } = useSelector((state) => {
     const search = new RegExp(state.search, "i");
     return {

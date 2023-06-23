@@ -2,12 +2,22 @@ import Header from "components/Header";
 import styles from "./Home.module.scss";
 import watch from "assets/inicial.png";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Button from "components/Button";
+import { useEffect } from "react";
+import { searchCategories } from "store/reducers/categories";
+import { searchItems } from "store/reducers/items";
 
 export default function Home() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const categories = useSelector((state) => state.categories);
+
+  useEffect(() => {
+    dispatch(searchCategories());
+    dispatch(searchItems());
+  }, [dispatch]);
+
   return (
     <div>
       <Header
@@ -28,7 +38,7 @@ export default function Home() {
           {categories.map((category, index) => {
             return (
               <div
-                key={index}
+                key={category.id}
                 onClick={() => navigate(`/category/${category.id}`)}
               >
                 <img src={category.thumbnail} alt={category.title} />
