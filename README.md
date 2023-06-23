@@ -384,8 +384,6 @@ const initialState = [
 ]
 ```
 
-
-
 * **Add**
 
 ```react
@@ -438,6 +436,111 @@ const mySlicer = createSlice({
 ```
 
 
+
+
+
+# Middlewares - Chamando APIs
+
+<img src="https://redux.js.org/assets/images/ReduxAsyncDataFlowDiagram-d97ff38a0f4da0f327163170ccc13e80.gif" style="zoom:30%;" />
+
+* O Middleware fica **depois da execução da action**!
+* Middleware **escuta** que a **action foi executado** e faz o que deve ser feito
+* `configureStore` possui por padrão um middleware, chamado **`Thunk`** (mas existem outros como o **`Saga`**)
+
+
+
+## Redux Thunk
+
+Thunk **é um middleware** nos ajuda com as chamadas assíncronas no backend!
+
+### Axios
+
+```bash
+yarn add axios
+```
+
+Para configurar uma rota default no axios:
+
+```javascript
+// src/common/config
+import axios from 'axios';
+
+const api = axios.create({
+    baseURL: 'http://localhost:3001'
+});
+
+export default api;
+```
+
+
+
+### GET ALL
+
+* Criar `src/services/seuService.js`
+
+```javascript
+// src/services/itemService.js
+import api from '/common/config/api'
+
+const itemService = {
+  buscar: await () => {
+    const response = api.get('/items');
+    return response;
+  }
+}
+
+export default itemService;
+```
+
+* No Reducer `src/store/reducers/items.js`:
+
+  * Exportar uma constante que será utilizada pela `view` usando **`createAsyncThunk`**
+
+    ```react
+    const initialState = []
+    
+    export const searchItems = createAsyncThunk(
+      "items/search",
+      itemsService.search
+    );
+    ```
+
+  * Com o **`extraReducers`**, iremos usar o `builder` para definir os status que o Thunk devolve:
+
+    * `pending` -> carregando
+    * `fulfilled` -> then
+    * `rejected` -> catch
+
+    ```react
+    const itemSlice = createSlice({
+      name: 'itemSlice',
+      initialState,
+      
+      // criar o builder
+     extraReducers: builder => {
+        builder
+        .addCase(
+          buscarItens.fulfilled,
+          (state, { payload }) => {
+            console.log('itens carregados!');
+            return payload;
+          }
+        )
+        .addCase(
+          buscarItens.pending,
+          (state, { payload }) => {
+            console.log('carregando itens');
+          }
+        )
+        .addCase(
+          buscarItens.rejected,
+          (state, { payload }) => {
+            console.log('busca de itens rejeitada!');
+          }
+        )
+      }
+    })
+    ```
 
 # Tópicos Adicionais <a href="adicionais"/> :book:
 
@@ -908,3 +1011,34 @@ function Input({ value, onChange, ...outrosProps }, ref) {
 export default forwardRef(Input);
 ```
 
+
+
+## JSON-Server
+
+```bash
+npm install -g json-server
+```
+
+```json
+// package.json -> adicionar 'server'
+ "scripts": {
+    "server": "json-server --watch db.json --port 3001"
+  },
+```
+
+```json
+// db.json -> root do projeto
+{
+  "categorias":[], // -> cada array será uma rota
+  "items":[], // -> /items/{id} | /items
+}
+```
+
+
+
+Com o `db.json` acima teríamos:
+
+```  http
+  http://localhost:3001/categorias
+  http://localhost:3001/itens
+```
