@@ -1,12 +1,11 @@
-import Header from "components/Header";
-import styles from "./Home.module.scss";
 import watch from "assets/inicial.png";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import Button from "components/Button";
+import Header from "components/Header";
 import { useEffect } from "react";
-import { searchCategories } from "store/reducers/categories";
-import { searchItems } from "store/reducers/items";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { loadCategories } from "store/reducers/categories";
+import styles from "./Home.module.scss";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -14,8 +13,7 @@ export default function Home() {
   const categories = useSelector((state) => state.categories);
 
   useEffect(() => {
-    dispatch(searchCategories());
-    dispatch(searchItems());
+    dispatch(loadCategories());
   }, [dispatch]);
 
   return (
@@ -35,7 +33,7 @@ export default function Home() {
           <h1>Categories</h1>
         </div>
         <div className={styles["categories-container"]}>
-          {categories.map((category, index) => {
+          {categories.map((category) => {
             return (
               <div
                 key={category.id}

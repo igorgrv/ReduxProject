@@ -2,9 +2,14 @@ import classNames from "classnames";
 import Button from "components/Button";
 import Header from "components/Header";
 import Input from "components/Input";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import {
+  loadCategories,
+  loadCategory,
+} from "store/reducers/categories";
 import { addItem } from "store/reducers/items";
 import styles from "./Advertise.module.scss";
 
@@ -26,6 +31,14 @@ export default function Advertise() {
   function addProduct(data) {
     dispatch(addItem(data));
   }
+
+  useEffect(() => {
+    dispatch(
+      categoryName
+        ? loadCategory(categoryName)
+        : loadCategories
+    );
+  }, [dispatch, categoryName]);
 
   return (
     <div className={styles.container}>

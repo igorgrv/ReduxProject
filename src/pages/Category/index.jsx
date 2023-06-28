@@ -1,11 +1,14 @@
 import Button from "components/Button";
 import Header from "components/Header";
 import Item from "components/Item";
-import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import { loadCategory } from "store/reducers/categories";
 import styles from "./Category.module.scss";
 
 export default function Category() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { categoryName } = useParams("categoryName");
 
@@ -14,12 +17,17 @@ export default function Category() {
     return {
       category: state.categories.find(
         (category) => category.id === categoryName
-      ),
+      ) || {},
       items: state.items.filter(
         (item) => item.category === categoryName && item.title.match(search)
       ),
     };
   });
+
+  useEffect(() => {
+    dispatch(loadCategory(categoryName));
+  }, [dispatch, categoryName]);
+
   return (
     <div>
       <Header

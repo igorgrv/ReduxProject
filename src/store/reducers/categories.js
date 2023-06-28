@@ -1,21 +1,23 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import categoriesService from "services/categories";
+import { createAction, createSlice } from "@reduxjs/toolkit";
 
 const initialState = [];
 
-export const searchCategories = createAsyncThunk(
-  "categories/search",
-  categoriesService.buscar
-);
+export const loadCategories = createAction('categories/getAll')
+export const loadCategory = createAction('categories/getOne')
 
 const categoriesSlice = createSlice({
   name: "categoriesSlice",
   initialState,
-  extraReducers: (builder) => {
-    builder.addCase(searchCategories.fulfilled, (state, { payload }) => {
-      return payload;
-    });
-  },
+  reducers: {
+    loadAllCategories: (state, { payload }) => {
+      return payload
+    },
+    loadOneCategory: (state, { payload }) => {
+      state.push(payload)
+    }
+  }
 });
+
+export const { loadAllCategories, loadOneCategory } = categoriesSlice.actions;
 
 export default categoriesSlice.reducer;
