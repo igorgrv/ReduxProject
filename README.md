@@ -1,4 +1,4 @@
-# Redux + Toolkit
+# Redux + Toolkit + Thunk + Listener + React-Hook-Form + JSON-Server
 
 ```bash
 yarn add react-redux @reduxjs/toolkit
