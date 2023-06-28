@@ -542,6 +542,190 @@ export default itemService;
     })
     ```
 
+
+
+## Listener
+
+* Listener é um middleware também já instalado do **react-toolkit**;
+* Como nome diz, podemos **escutar uma action** e então fazer algo!
+* Podemos usar **Listener + Thunk**;
+
+Para **criar um Listener** precisamos:
+
+1. Criar uma folder que irá ficar o listener `src/store/middlewares/` -> `items.js`
+
+2. Criar um `createListenerMiddleware` e exporta-lo
+
+   1. ```react
+      // src/store/middlewares/items.js
+      export const categoriaListener = createListenerMiddleware();
+      ```
+
+3. Importa-lo no `configureStore` (`/src/store/index.js`)
+
+   1. ```react
+      const store = configureStore({
+        reducer: {
+          categories: categoriesSlice,
+          items: itemSlicer,
+          cart: cartSlicer,
+          search: searchSlicer,
+        },
+        
+        // aqui adicionamos todos os liteners
+       middleware:
+          getDefaultMiddleware =>
+            getDefaultMiddleware().prepend(
+              categoriasListener.middleware,
+              itensListener.middleware
+            ),
+      });
+      ```
+
+
+
+Voltando ao `categoriaListener`, temos a opção:
+
+* ***clearListeners\***, que limpa os *listeners* já existentes;
+* ***middleware\***, que precisamos adicionar no `configureStore`, e faremos isso ainda nesse vídeo;
+* ***startListening\***, para começarmos a escutar algo;
+* ***stopListening\***, para parar de escutar algo;
+
+
+
+### StartListening & Get All
+
+Esse é o método que iremos escutar quando uma action acontece, e então executar algo.
+
+Exemplo base:
+
+1. Criamos uma `action` para o Listener:
+
+   ```react
+   // src/store/reducers/categories
+   import { createAction, createSlice } from "@reduxjs/toolkit";
+   
+   export const searchCategoryListener = createAction('categories/getOne')
+   ```
+
+2. Criamos o Listener com o `createListenerMiddleware`
+
+   ```react
+   // src/store/middleware/categories
+   
+   import categoriesService from "services/categories";
+   import { loadAllCategories, searchCategoriesListener } from "store/reducers/categories";
+   
+   export const categoryListener = createListenerMiddleware();
+   
+   categoryListener.startListening({
+     actionCreator: searchCategoriesListener, // quando alguém fizer o disptach dessa action
+     // o effect será chamado
+     effect: async (action, { dispatch, fork }) => {
+   
+       const categories = fork(async api => {
+         return await categoriesService.search();
+       })
+   
+       const result = await categories.result
+       if (result.status === 'ok')
+         dispatch(loadAllCategories(result.value))
+     }
+   })
+   ```
+
+   * `fork` 
+     * Fork é utilizado para realizar ***mini tarefas no middleware***
+     * Trata erros (**try/catch) de forma automática**
+     * Podemos **pausar, cancelar, por delay** na chamada
+     * Recebemos do fork um `cancel` ou `result`
+   * `dispatch` -> funciona igual ao `useDispatch` para chamar uma `action` do reducer
+
+3. Fazemos o `dispatch ` com o `useEffect` no component que irá carregar o `state:
+
+   ```react
+   export default function Home() {
+     const navigate = useNavigate();
+     const dispatch = useDispatch();
+     const categories = useSelector((state) => state.categories);
+   
+     useEffect(() => {
+       dispatch(searchCategoriesListener());
+     }, [dispatch]);
+   ```
+
+   
+
+### Unsubscribe
+
+Vamos dizer que **ao acessar** a página inicial o **Listener carregue algo**, e após acessarmos outra página e voltarmos para inicial **não queiramos carregar novamente** o que já foi carregado pelo Listener...
+
+* `unsubscribe` -> importado do `effect` do `startListening`, nos permite **PARAR O LISTENER**
+
+```react
+export const itemListener = createListenerMiddleware();
+
+itemListener.startListening({
+  actionCreator: searchItemsListener,
+  
+  // pegamos o unsubscribe
+  effect: async (action, { dispatch, fork, unsubscribe }) => {
+
+    const items = fork(async api => {
+      await api.delay(1000)
+      return await itemsService.search()
+    })
+
+    const result = await items.result;
+
+    // se sucesso, pararmos o Listener de escutar
+    if (result.status === 'ok') {
+      dispatch(loadItems(result.value))
+      unsubscribe()
+    }
+
+  }
+```
+
+
+
+### getState
+
+De dentro de um startListening também podemos recuperar o state!
+
+```react
+// src/store/middleware/item.js
+
+export const itemListener = createListenerMiddleware();
+
+itemListener.startListening({
+  actionCreator: loadCategory,
+  effect: async (action, { dispatch, fork, getState }) => {
+
+    const categoryName = action.payload
+    
+    // pegamos items do state
+    const { items } = getState();
+
+    const hasItemAlreadyLoad = items.some(item => item.category === categoryName);
+
+    if (hasItemAlreadyLoad) return;
+
+    await createTask({
+      fork,
+      dispatch,
+      action: loadAllItems,
+      service: () => itemsService.getItemByCategory(categoryName),
+      textLoading: `Loading items from ${categoryName}`,
+      textSuccess: `Items from ${categoryName} loaded with success!`,
+      textError: `Error while trying to load items from ${categoryName}`,
+    });
+  }
+})
+```
+
+
+
 # Tópicos Adicionais <a href="adicionais"/> :book:
 
 ## Classnames
